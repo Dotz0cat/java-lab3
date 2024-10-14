@@ -1,11 +1,11 @@
 import javax.swing.*;
 import java.util.stream.Stream;
 
-public class ChartPanel extends JPanel {
+public class DetailsPanel extends JPanel {
 
     private Stream<DataCarrier> dataStream;
 
-    ChartPanel(Stream<DataCarrier> dataStream) {
+    DetailsPanel(Stream<DataCarrier> dataStream) {
         super();
         this.dataStream = dataStream;
     }
