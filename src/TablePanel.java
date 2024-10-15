@@ -1,16 +1,16 @@
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class TablePanel extends JPanel {
-    private Stream<DataCarrier> dataStream;
+    private final Stream<IrisData> dataStream;
     private JScrollPane pane;
     private JTable table;
+    private JPanel checkboxPanel;
     private ArrayList<JCheckBox> checkBoxes;
 
-    TablePanel(Stream<DataCarrier> dataStream) {
+    TablePanel(Stream<IrisData> dataStream) {
         super();
 
         this.dataStream = dataStream;
@@ -24,10 +24,6 @@ public class TablePanel extends JPanel {
 
 
 
-    }
-
-    public void setDataStream(Stream<DataCarrier> dataStream) {
-        this.dataStream = dataStream;
     }
 
     private class ModelTable extends AbstractTableModel {

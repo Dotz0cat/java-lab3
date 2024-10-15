@@ -1,25 +1,24 @@
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileHandler {
-    private String file;
-
-    public FileHandler() {
-        this.file = null;
-    }
+    private final String file;
 
     public FileHandler(String file) {
         this.file = file;
     }
 
-    public void setFile(String file) {
-        this.file = file;
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public Stream<DataCarrier> getStreamOf() {
-       return null;
+    public Set<IrisData> getSetOf() {
+        InputStream input = getClass().getResourceAsStream(this.file);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        Set<IrisData> data = reader.lines()
+                .skip(1)
+                .map(IrisData::IrisDataMap)
+                .collect(Collectors.toSet());
+        return data;
     }
 }

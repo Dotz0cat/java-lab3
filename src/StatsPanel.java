@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.util.stream.Stream;
 
 public class StatsPanel extends JPanel {
-    private Stream<DataCarrier> dataStream;
+    private Stream<IrisData> dataStream;
 
     //stats to show
     //Mean
@@ -11,13 +11,13 @@ public class StatsPanel extends JPanel {
     //count
     //z score
 
-    StatsPanel(Stream<DataCarrier> dataStream) {
+    StatsPanel(Stream<IrisData> dataStream) {
         super();
 
         this.dataStream = dataStream;
     }
 
-    public void setDataStream(Stream<DataCarrier> dataStream) {
+    public void setDataStream(Stream<IrisData> dataStream) {
         this.dataStream = dataStream;
     }
 }

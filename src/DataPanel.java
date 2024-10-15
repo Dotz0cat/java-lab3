@@ -1,20 +1,27 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Set;
 
 public class DataPanel extends JPanel {
     private TablePanel table;
     private StatsPanel stats;
     private ChartPanel chart;
     private DetailsPanel details;
+    private FileHandler fileHandler;
+    private Set<IrisData> dataSet;
 
-    DataPanel() {
+    DataPanel(String file) {
         super();
 
         this.setLayout(new GridBagLayout());
-        this.table = new TablePanel();
-        this.stats = new StatsPanel();
-        this.chart = new ChartPanel();
-        this.details = new DetailsPanel();
+
+        this.fileHandler = new FileHandler(file);
+        this.dataSet = this.fileHandler.getSetOf();
+
+        this.table = new TablePanel(this.dataSet.stream());
+        this.stats = new StatsPanel(this.dataSet.stream());
+        this.chart = new ChartPanel(this.dataSet.stream());
+        this.details = new DetailsPanel(this.dataSet.stream());
 
         GridBagConstraints tableConstraints = new GridBagConstraints();
         GridBagConstraints statsConstraints = new GridBagConstraints();

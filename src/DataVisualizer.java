@@ -5,7 +5,7 @@ public class DataVisualizer {
         System.out.printf("Graphical display here\n");
 
         JFrame frame = new JFrame("Data Visualizer");
-        DataPanel panel = new DataPanel();
+        DataPanel panel = new DataPanel("iris.csv");
         frame.getContentPane().add(panel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();

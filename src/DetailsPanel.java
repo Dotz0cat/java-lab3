@@ -3,14 +3,14 @@ import java.util.stream.Stream;
 
 public class DetailsPanel extends JPanel {
 
-    private Stream<DataCarrier> dataStream;
+    private Stream<IrisData> dataStream;
 
-    DetailsPanel(Stream<DataCarrier> dataStream) {
+    DetailsPanel(Stream<IrisData> dataStream) {
         super();
         this.dataStream = dataStream;
     }
 
-    public void setDataStream(Stream<DataCarrier> dataStream) {
+    public void setDataStream(Stream<IrisData> dataStream) {
         this.dataStream = dataStream;
     }
 }
