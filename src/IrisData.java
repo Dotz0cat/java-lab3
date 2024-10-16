@@ -1,5 +1,9 @@
 public record IrisData(double sepalLength, double sepalWidth, double petalLength, double petalWidth, String variety) {
-   public static IrisData IrisDataMap(String line) {
+   public static final String[] dataNames = {
+           "Sepal Length", "Sepal Width", "Petal Length", "Petal Width", "Variety"
+   };
+
+    public static IrisData IrisDataMap(String line) {
        String[] parts = line.split(",");
 
        double sepalLength = Double.parseDouble(parts[0].trim());

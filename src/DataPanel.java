@@ -18,8 +18,8 @@ public class DataPanel extends JPanel {
         this.fileHandler = new FileHandler(file);
         this.dataSet = this.fileHandler.getSetOf();
 
-        this.table = new TablePanel(this.dataSet.stream());
-        this.stats = new StatsPanel(this.dataSet.stream());
+        this.table = new TablePanel(this.dataSet);
+        this.stats = new StatsPanel(this.dataSet);
         this.chart = new ChartPanel(this.dataSet.stream());
         this.details = new DetailsPanel(this.dataSet.stream());
 

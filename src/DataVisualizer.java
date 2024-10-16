@@ -12,8 +12,4 @@ public class DataVisualizer {
         frame.setVisible(true);
 
     }
-
-    public static void loadData(String data) {
-
-    }
 }
