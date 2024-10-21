@@ -1,16 +1,22 @@
+import org.jfree.chart.JFreeChart;
+
 import javax.swing.*;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class ChartPanel extends JPanel {
 
-    private Stream<IrisData> dataStream;
+    private final Set<IrisData> dataSet;
 
-    ChartPanel(Stream<IrisData> dataStream) {
+    private JFreeChart chart;
+
+    ChartPanel(Set<IrisData> dataSet) {
         super();
-        this.dataStream = dataStream;
+        this.dataSet = dataSet;
+
+        //chart = new JFreeChart("Iris", );
     }
 
-    public void setDataStream(Stream<IrisData> dataStream) {
-        this.dataStream = dataStream;
-    }
+
+
 }

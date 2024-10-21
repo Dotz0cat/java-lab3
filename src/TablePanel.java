@@ -4,12 +4,14 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class TablePanel extends JPanel {
     private final Set<IrisData> dataSet;
+    private final TableModel modelTable;
     private JScrollPane pane;
     private JTable table;
     private JPanel checkboxPanel;
@@ -43,7 +45,8 @@ public class TablePanel extends JPanel {
             checkboxPanel.add(box);
         }
 
-        this.table = new JTable(new ModelTable());
+        this.modelTable = new ModelTable();
+        this.table = new JTable(this.modelTable);
 
         this.pane = new JScrollPane(table);
 
@@ -55,32 +58,47 @@ public class TablePanel extends JPanel {
 
     public IrisData getSelectedItem() {
         int row = this.table.getSelectedRow();
-        TableModel model = this.table.getModel();
-        if (model instanceof ModelTable) {
-            return ((ModelTable) model).getSelectedItem(row);
+        if (modelTable instanceof ModelTable) {
+            return ((ModelTable) modelTable).getSelectedItem(row);
         }
         else {
             return null;
         }
     }
 
+    public void filterTable(Predicate<? super IrisData> filter) {
+        if (modelTable instanceof ModelTable) {
+            ((ModelTable) modelTable).filterData(filter);
+        }
+    }
+
+    public String[] getShownColumnNames() {
+        String[] columnNamesShown = new String[table.getColumnCount()];
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            columnNamesShown[i] = table.getColumnName(i);
+        }
+
+        return columnNamesShown;
+    }
+
     private class ModelTable extends AbstractTableModel {
-        private int rowCount;
         private BitSet columnsShown;
         private final IrisData[] dataArray;
+        private List<IrisData> displayData;
 
         ModelTable() {
             super();
 
             dataArray = dataSet.toArray(new IrisData[0]);
+            displayData = List.of(dataArray);
             columnsShown = new BitSet(IrisData.dataNames.length);
-            rowCount = dataArray.length;
             columnsShown.flip(0, IrisData.dataNames.length);
         }
 
         @Override
         public int getRowCount() {
-            return rowCount;
+            return displayData.size();
         }
 
         @Override
@@ -123,7 +141,7 @@ public class TablePanel extends JPanel {
                 return null;
             }
             else {
-                IrisData entry = dataArray[i];
+                IrisData entry = displayData.get(i);
                 return switch (actualIndex) {
                     case 0 -> entry.sepalLength();
                     case 1 -> entry.sepalWidth();
@@ -141,7 +159,14 @@ public class TablePanel extends JPanel {
         }
 
         public IrisData getSelectedItem(int row) {
-            return dataArray[row];
+            return displayData.get(row);
+        }
+
+        public void filterData(Predicate<? super IrisData> filter) {
+            displayData = List.of(dataArray).stream()
+                    .filter(filter)
+                    .toList();
+            fireTableDataChanged();
         }
     }
 

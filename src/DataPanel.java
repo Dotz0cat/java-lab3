@@ -24,7 +24,7 @@ public class DataPanel extends JPanel {
 
         this.table = new TablePanel(this.dataSet);
         this.stats = new StatsPanel(this.dataSet);
-        this.chart = new ChartPanel(this.dataSet.stream());
+        this.chart = new ChartPanel(this.dataSet);
         this.details = new DetailsPanel();
 
         GridBagConstraints tableConstraints = new GridBagConstraints();
@@ -70,7 +70,7 @@ public class DataPanel extends JPanel {
         this.table.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                return;
+                stats.useFeatures(table.getShownColumnNames());
             }
         });
 
@@ -106,6 +106,14 @@ public class DataPanel extends JPanel {
         this.stats.addActionListener(actionEvent -> {
             String selectedVariety = stats.getSelectedVariety();
 
+            if (selectedVariety != null) {
+                table.filterTable((a) -> a.variety().equals(selectedVariety));
+            }
+            else {
+                table.filterTable(a -> true);
+            }
+
+            details.clear();
         });
     }
 

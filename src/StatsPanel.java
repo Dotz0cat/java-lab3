@@ -3,9 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 
 public class StatsPanel extends JPanel {
     private Set<IrisData> dataSet;
@@ -13,6 +11,15 @@ public class StatsPanel extends JPanel {
 
     private JPanel featuresPanel;
     private Map<String, FeatureLabels> featureLabelsMap;
+
+    private static final Map<String, ToDoubleFunction<IrisData>> FEATURES_MAP = Map.of(
+            "Sepal Length", IrisData::sepalLength,
+            "Sepal Width", IrisData::sepalWidth,
+            "Petal Length", IrisData::petalLength,
+            "Petal Width", IrisData::petalWidth
+    );
+
+
 
     private ActionListener actionListener;
 
@@ -40,11 +47,7 @@ public class StatsPanel extends JPanel {
         this.add(this.varities, BorderLayout.PAGE_START);
         this.add(this.featuresPanel, BorderLayout.CENTER);
 
-        addToFeatureMap("Sepal Length", IrisData::sepalLength);
-        addToFeatureMap("Sepal Width", IrisData::sepalWidth);
-        addToFeatureMap("Petal Length", IrisData::petalLength);
-        addToFeatureMap("Petal Width", IrisData::petalWidth);
-
+        FEATURES_MAP.forEach(this::addToFeatureMap);
     }
 
     public void updateAllStats() {
@@ -89,18 +92,30 @@ public class StatsPanel extends JPanel {
     }
 
     public String getSelectedVariety() {
-        return (String) this.varities.getSelectedItem();
+        String variety = (String) this.varities.getSelectedItem();
+        return variety.equals("All") ? null : variety;
+    }
+
+    private void addFeature(String feature) {
+        addToFeatureMap(feature, FEATURES_MAP.get(feature));
+    }
+
+    public void useFeatures(String ... features) {
+        featuresPanel.removeAll();
+        featureLabelsMap.clear();
+
+        Arrays.stream(features)
+                .filter(FEATURES_MAP::containsKey)
+                .forEach(this::addFeature);
+
+        featuresPanel.repaint();
+        featuresPanel.revalidate();
     }
 
     private void addToFeatureMap(String feature, ToDoubleFunction<IrisData> featureSelector) {
         this.featureLabelsMap.put(feature, new FeatureLabels(feature, featureSelector));
         this.featuresPanel.add(featureLabelsMap.get(feature));
         updateStatsForFeature(this.featureLabelsMap.get(feature));
-    }
-
-    private void removeFeatureMap(String feature) {
-        this.featuresPanel.remove(featureLabelsMap.get(feature));
-        this.featureLabelsMap.remove(feature);
     }
 
     private double getMean(ToDoubleFunction<IrisData> selector) {
