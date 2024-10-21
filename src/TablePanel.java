@@ -2,7 +2,10 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.*;
 
 public class TablePanel extends JPanel {
@@ -11,6 +14,10 @@ public class TablePanel extends JPanel {
     private JTable table;
     private JPanel checkboxPanel;
     private ArrayList<JCheckBox> checkBoxes;
+
+    //action listener
+    private ActionListener actionListener;
+    //private MouseListener mouseListener;
 
     TablePanel(Set<IrisData> dataSet) {
         super(new BorderLayout());
@@ -28,6 +35,7 @@ public class TablePanel extends JPanel {
                 if (model instanceof ModelTable) {
                     ((ModelTable) model).updateColumnsShown(finalI, box.isSelected());
                 }
+                dispatchAction();
             });
 
             box.setSelected(true);
@@ -43,6 +51,17 @@ public class TablePanel extends JPanel {
 
         this.add(this.pane, BorderLayout.CENTER);
 
+    }
+
+    public IrisData getSelectedItem() {
+        int row = this.table.getSelectedRow();
+        TableModel model = this.table.getModel();
+        if (model instanceof ModelTable) {
+            return ((ModelTable) model).getSelectedItem(row);
+        }
+        else {
+            return null;
+        }
     }
 
     private class ModelTable extends AbstractTableModel {
@@ -120,5 +139,27 @@ public class TablePanel extends JPanel {
             columnsShown.set(index, shown);
             fireTableStructureChanged();
         }
+
+        public IrisData getSelectedItem(int row) {
+            return dataArray[row];
+        }
+    }
+
+    //feels like I should implement an interface for this
+    public void addActionListener(ActionListener l) {
+        this.actionListener = l;
+    }
+
+    public void addMouseListener(MouseListener m) {
+        //this.mouseListener = m;
+        this.table.addMouseListener(m);
+    }
+
+    private void dispatchAction() {
+        if (this.actionListener == null) return;
+
+        ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+
+        this.actionListener.actionPerformed(event);
     }
 }

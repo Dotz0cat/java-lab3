@@ -1,8 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
-import java.util.Set;
-import java.util.Vector;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
@@ -11,68 +11,106 @@ public class StatsPanel extends JPanel {
     private Set<IrisData> dataSet;
     private JComboBox<String> varities;
 
-    private JLabel meanLabel;
-    private JLabel stdevLabel;
-    private JLabel countLabel;
-    private JLabel zScoreLabel;
+    private JPanel featuresPanel;
+    private Map<String, FeatureLabels> featureLabelsMap;
+
+    private ActionListener actionListener;
 
     StatsPanel(Set<IrisData> dataSet) {
-        super();
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        super(new BorderLayout());
 
         this.dataSet = dataSet;
 
-        this.varities = new JComboBox<String>(this.dataSet.stream()
+        this.featuresPanel = new JPanel();
+
+        this.featureLabelsMap = new WeakHashMap<String, FeatureLabels>();
+
+        this.varities = new JComboBox<String>();
+        this.varities.addItem("All");
+        this.dataSet.stream()
                 .map(IrisData::variety)
                 .distinct()
-                .toArray(String[]::new)
-        );
+                .forEach(this.varities::addItem);
 
         this.varities.addActionListener(actionEvent -> {
-            String selectedVariety = (String) varities.getSelectedItem();
-
-            if (!selectedVariety.equals("All")) {
-                updateStats(IrisData::sepalLength);
-            }
-            else {
-                updateStats(IrisData::sepalLength, selectedVariety);
-            }
+            updateAllStats();
+            dispatchAction();
         });
 
-        this.add(this.varities);
+        this.add(this.varities, BorderLayout.PAGE_START);
+        this.add(this.featuresPanel, BorderLayout.CENTER);
 
-        this.meanLabel = new JLabel("Mean: 0.0");
-        this.stdevLabel = new JLabel("Standard Deviation: 0.0");
-        this.countLabel = new JLabel("Count: 0");
-        this.zScoreLabel = new JLabel("Z Score: 0.0");
+        addToFeatureMap("Sepal Length", IrisData::sepalLength);
+        addToFeatureMap("Sepal Width", IrisData::sepalWidth);
+        addToFeatureMap("Petal Length", IrisData::petalLength);
+        addToFeatureMap("Petal Width", IrisData::petalWidth);
 
-        this.add(meanLabel);
-        this.add(stdevLabel);
-        this.add(countLabel);
-
-        updateStats(IrisData::sepalLength);
     }
 
-    public void updateStats(ToDoubleFunction<IrisData> selector) {
-        this.meanLabel.setText("Mean: " + String.format("%.3f", getMean(selector)));
-        this.stdevLabel.setText("Standard Deviation: " + String.format("%.3f", getStdev(selector)));
-        this.countLabel.setText("Count: " + getCount());
+    public void updateAllStats() {
+        String selectedVariety = (String) varities.getSelectedItem();
+
+        if (selectedVariety.equals("All")) {
+            for (FeatureLabels featureLabel : featureLabelsMap.values()) {
+                featureLabel.updateStats();
+            }
+        }
+        else {
+            for (FeatureLabels featureLabel : featureLabelsMap.values()) {
+                featureLabel.updateStats(selectedVariety);
+            }
+        }
     }
 
-    public void updateStats(ToDoubleFunction<IrisData> selector, String type) {
-        this.meanLabel.setText("Mean: " + String.format("%.3f", getMean(selector, type)));
-        this.stdevLabel.setText("Standard Deviation: " + String.format("%.3f", getStdev(selector, type)));
-        this.countLabel.setText("Count: " + getCount(type));
+    public void updateAllStats(IrisData irisData) {
+        String selectedVariety = (String) varities.getSelectedItem();
+
+        if (selectedVariety.equals("All")) {
+            for (FeatureLabels featureLabel : featureLabelsMap.values()) {
+                featureLabel.updateStats(irisData);
+            }
+        }
+        else {
+            for (FeatureLabels featureLabel : featureLabelsMap.values()) {
+                featureLabel.updateStats(irisData, selectedVariety);
+            }
+        }
     }
 
-    public double getMean(ToDoubleFunction<IrisData> selector) {
+    public void updateStatsForFeature(FeatureLabels featureLabel) {
+        String selectedVariety = (String) varities.getSelectedItem();
+
+        if (selectedVariety.equals("All")) {
+            featureLabel.updateStats();
+        }
+        else {
+            featureLabel.updateStats(selectedVariety);
+        }
+    }
+
+    public String getSelectedVariety() {
+        return (String) this.varities.getSelectedItem();
+    }
+
+    private void addToFeatureMap(String feature, ToDoubleFunction<IrisData> featureSelector) {
+        this.featureLabelsMap.put(feature, new FeatureLabels(feature, featureSelector));
+        this.featuresPanel.add(featureLabelsMap.get(feature));
+        updateStatsForFeature(this.featureLabelsMap.get(feature));
+    }
+
+    private void removeFeatureMap(String feature) {
+        this.featuresPanel.remove(featureLabelsMap.get(feature));
+        this.featureLabelsMap.remove(feature);
+    }
+
+    private double getMean(ToDoubleFunction<IrisData> selector) {
         return this.dataSet.stream()
                 .mapToDouble(selector)
                 .average()
                 .orElse(0.0);
     }
 
-    public double getMean(ToDoubleFunction<IrisData> selector, String type) {
+    private double getMean(ToDoubleFunction<IrisData> selector, String type) {
         return this.dataSet.stream()
                 .filter(irisData -> irisData.variety().equals(type))
                 .mapToDouble(selector)
@@ -80,18 +118,18 @@ public class StatsPanel extends JPanel {
                 .orElse(0.0);
     }
 
-    public int getCount() {
+    private int getCount() {
         return this.dataSet.size();
     }
 
-    public int getCount(String type) {
+    private int getCount(String type) {
         return (int) this.dataSet.stream()
                 .map(IrisData::variety)
                 .filter((String variety) -> variety.equals(type))
                 .count();
     }
 
-    public double getStdev(ToDoubleFunction<IrisData> selector) {
+    private double getStdev(ToDoubleFunction<IrisData> selector) {
         double mean = getMean(selector);
 
         double variance = this.dataSet.stream()
@@ -103,7 +141,7 @@ public class StatsPanel extends JPanel {
         return Math.sqrt(variance);
     }
 
-    public double getStdev(ToDoubleFunction<IrisData> selector, String type) {
+    private double getStdev(ToDoubleFunction<IrisData> selector, String type) {
         double mean = getMean(selector, type);
 
         double variance = this.dataSet.stream()
@@ -116,17 +154,91 @@ public class StatsPanel extends JPanel {
         return Math.sqrt(variance);
     }
 
-    public double zScore(double value, ToDoubleFunction<IrisData> selector) {
+    private double getZScore(IrisData irisData, ToDoubleFunction<IrisData> selector) {
         double stdev = getStdev(selector);
         double mean = getMean(selector);
 
-        return (value - mean)/stdev;
+        return (selector.applyAsDouble(irisData) - mean)/stdev;
     }
 
-    public double zScore(double value, ToDoubleFunction<IrisData> selector, String type) {
+    private double getZScore(IrisData irisData, ToDoubleFunction<IrisData> selector, String type) {
         double stdev = getStdev(selector, type);
         double mean = getMean(selector, type);
 
-        return (value - mean)/stdev;
+        return (selector.applyAsDouble(irisData) - mean)/stdev;
+    }
+
+    private class FeatureLabels extends JPanel {
+        private JLabel feature;
+        private ToDoubleFunction<IrisData> selector;
+
+        private JLabel meanLabel;
+        private JLabel stdevLabel;
+        private JLabel countLabel;
+        private JLabel zScoreLabel;
+
+        FeatureLabels(String feature, ToDoubleFunction<IrisData> selector) {
+            super();
+            this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+            this.feature = new JLabel(feature);
+            this.add(this.feature);
+
+            this.selector = selector;
+
+            this.meanLabel = new JLabel("Mean: 0.0");
+            this.stdevLabel = new JLabel("Standard Deviation: 0.0");
+            this.countLabel = new JLabel("Count: 0");
+            this.zScoreLabel = new JLabel("Z Score: 0.0");
+
+            this.add(meanLabel);
+            this.add(stdevLabel);
+            this.add(countLabel);
+            this.add(zScoreLabel);
+
+            this.zScoreLabel.setVisible(false);
+        }
+
+        public void updateStats() {
+            this.meanLabel.setText("Mean: " + String.format("%.3f", getMean(this.selector)));
+            this.stdevLabel.setText("Standard Deviation: " + String.format("%.3f", getStdev(this.selector)));
+            this.countLabel.setText("Count: " + getCount());
+            this.zScoreLabel.setVisible(false);
+        }
+
+        public void updateStats(String type) {
+            this.meanLabel.setText("Mean: " + String.format("%.3f", getMean(this.selector, type)));
+            this.stdevLabel.setText("Standard Deviation: " + String.format("%.3f", getStdev(this.selector, type)));
+            this.countLabel.setText("Count: " + getCount(type));
+            this.zScoreLabel.setVisible(false);
+        }
+
+        public void updateStats(IrisData irisData) {
+            this.meanLabel.setText("Mean: " + String.format("%.3f", getMean(this.selector)));
+            this.stdevLabel.setText("Standard Deviation: " + String.format("%.3f", getStdev(this.selector)));
+            this.countLabel.setText("Count: " + getCount());
+            this.zScoreLabel.setText("Z Score: " + String.format("%.3f", getZScore(irisData, this.selector)));
+            this.zScoreLabel.setVisible(true);
+        }
+
+        public void updateStats(IrisData irisData, String type) {
+            this.meanLabel.setText("Mean: " + String.format("%.3f", getMean(this.selector, type)));
+            this.stdevLabel.setText("Standard Deviation: " + String.format("%.3f", getStdev(this.selector, type)));
+            this.countLabel.setText("Count: " + getCount(type));
+            this.zScoreLabel.setText("Z Score: " + String.format("%.3f", getZScore(irisData, this.selector, type)));
+            this.zScoreLabel.setVisible(true);
+        }
+    }
+
+    public void addActionListener(ActionListener l) {
+        this.actionListener = l;
+    }
+
+    private void dispatchAction() {
+        if (this.actionListener == null) return;
+
+        ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Selection Changed");
+
+        this.actionListener.actionPerformed(event);
     }
 }
