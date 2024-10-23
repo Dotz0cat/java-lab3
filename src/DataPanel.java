@@ -40,8 +40,9 @@ public class DataPanel extends JPanel {
         tableConstraints.gridx = 0;
 
         chartConstraints.anchor = GridBagConstraints.PAGE_START;
-        chartConstraints.fill = GridBagConstraints.HORIZONTAL;
+        chartConstraints.fill = GridBagConstraints.BOTH;
         chartConstraints.weightx = 1.0;
+        chartConstraints.weighty = 1.0;
         chartConstraints.gridy = 1;
         chartConstraints.gridx = 0;
 

@@ -12,15 +12,6 @@ public class StatsPanel extends JPanel {
     private JPanel featuresPanel;
     private Map<String, FeatureLabels> featureLabelsMap;
 
-    private static final Map<String, ToDoubleFunction<IrisData>> FEATURES_MAP = Map.of(
-            "Sepal Length", IrisData::sepalLength,
-            "Sepal Width", IrisData::sepalWidth,
-            "Petal Length", IrisData::petalLength,
-            "Petal Width", IrisData::petalWidth
-    );
-
-
-
     private ActionListener actionListener;
 
     StatsPanel(Set<IrisData> dataSet) {
@@ -47,7 +38,7 @@ public class StatsPanel extends JPanel {
         this.add(this.varities, BorderLayout.PAGE_START);
         this.add(this.featuresPanel, BorderLayout.CENTER);
 
-        FEATURES_MAP.forEach(this::addToFeatureMap);
+        IrisData.SELECTOR_MAP.forEach(this::addToFeatureMap);
     }
 
     public void updateAllStats() {
@@ -97,7 +88,7 @@ public class StatsPanel extends JPanel {
     }
 
     private void addFeature(String feature) {
-        addToFeatureMap(feature, FEATURES_MAP.get(feature));
+        addToFeatureMap(feature, IrisData.SELECTOR_MAP.get(feature));
     }
 
     public void useFeatures(String ... features) {
@@ -105,7 +96,7 @@ public class StatsPanel extends JPanel {
         featureLabelsMap.clear();
 
         Arrays.stream(features)
-                .filter(FEATURES_MAP::containsKey)
+                .filter(IrisData.SELECTOR_MAP::containsKey)
                 .forEach(this::addFeature);
 
         featuresPanel.repaint();
