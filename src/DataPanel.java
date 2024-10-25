@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Arrays;
 import java.util.Set;
 
 public class DataPanel extends JPanel {
@@ -27,6 +28,8 @@ public class DataPanel extends JPanel {
         this.chart = new ChartPanel(this.dataSet);
         this.details = new DetailsPanel();
 
+        this.chart.setPreferredSize(new Dimension(300, 400));
+
         GridBagConstraints tableConstraints = new GridBagConstraints();
         GridBagConstraints statsConstraints = new GridBagConstraints();
         GridBagConstraints chartConstraints = new GridBagConstraints();
@@ -47,14 +50,15 @@ public class DataPanel extends JPanel {
         chartConstraints.gridx = 0;
 
         detailsConstraints.anchor = GridBagConstraints.PAGE_START;
-        detailsConstraints.fill = GridBagConstraints.HORIZONTAL;
-        detailsConstraints.weightx = 1.0;
+        detailsConstraints.fill = GridBagConstraints.NONE;
+        detailsConstraints.weightx = 0.3;
+        detailsConstraints.weighty = 0.0;
         detailsConstraints.gridy = 0;
         detailsConstraints.gridx = 2;
 
         statsConstraints.anchor = GridBagConstraints.PAGE_START;
-        statsConstraints.fill = GridBagConstraints.BOTH;
-        statsConstraints.weightx = 1.0;
+        statsConstraints.fill = GridBagConstraints.VERTICAL;
+        statsConstraints.weightx = 0.3;
         statsConstraints.weighty = 1.0;
         statsConstraints.gridy = 1;
         statsConstraints.gridx = 2;
@@ -71,7 +75,24 @@ public class DataPanel extends JPanel {
         this.table.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                stats.useFeatures(table.getShownColumnNames());
+                String[] featuresShown = table.getShownColumnNames();
+
+                stats.useFeatures(featuresShown);
+
+                String selectedVariety = stats.getSelectedVariety();
+
+                if (selectedVariety != null) {
+                    chart.filterChart(
+                            a -> Arrays.asList(featuresShown).contains(a.getKey()),
+                            a -> a.variety().equals(selectedVariety)
+                    );
+                }
+                else {
+                    chart.filterChart(
+                            a -> Arrays.asList(featuresShown).contains(a.getKey()),
+                            a -> true
+                    );
+                }
             }
         });
 
@@ -106,12 +127,21 @@ public class DataPanel extends JPanel {
 
         this.stats.addActionListener(actionEvent -> {
             String selectedVariety = stats.getSelectedVariety();
+            String[] featuresShown = table.getShownColumnNames();
 
             if (selectedVariety != null) {
                 table.filterTable((a) -> a.variety().equals(selectedVariety));
+                chart.filterChart(
+                        a -> Arrays.asList(featuresShown).contains(a.getKey()),
+                        (a) -> a.variety().equals(selectedVariety)
+                );
             }
             else {
                 table.filterTable(a -> true);
+                chart.filterChart(
+                        a -> Arrays.asList(featuresShown).contains(a.getKey()),
+                        a -> true
+                );
             }
 
             details.clear();

@@ -1,18 +1,24 @@
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.statistics.DefaultMultiValueCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChartPanel extends JPanel {
@@ -25,14 +31,18 @@ public class ChartPanel extends JPanel {
     private ActionListener actionListener;
 
     ChartPanel(Set<IrisData> dataSet) {
-        super();
+        super(new BorderLayout());
         this.dataSet = dataSet;
 
         this.chart = ChartFactory.createBarChart(
             CHART_TITLE,
             "Something1",
             "Something2",
-            createDataSet()
+            createDataSet(_ -> true, _ -> true),
+                PlotOrientation.HORIZONTAL,
+                true,
+                true,
+                true
         );
 
         this.add(new org.jfree.chart.ChartPanel(chart));
@@ -42,19 +52,35 @@ public class ChartPanel extends JPanel {
         chart.getCategoryPlot().setRenderer(br);
     }
 
-    private CategoryDataset createDataSet() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    private CategoryDataset createDataSet(Predicate<? super Map.Entry> featureFilter, Predicate<? super IrisData> dataFilter) {
+        DefaultMultiValueCategoryDataset dataset = new DefaultMultiValueCategoryDataset();
         ArrayList<Map.Entry<String, ToDoubleFunction<IrisData>>> features = new ArrayList<>(IrisData.SELECTOR_MAP.entrySet());
 
-        for (IrisData irisData : dataSet) {
-            for (Map.Entry<String, ToDoubleFunction<IrisData>> feature : features) {
-                String featureName = feature.getKey();
-                double value = feature.getValue().applyAsDouble(irisData);
-                dataset.addValue(value, irisData.variety(), featureName);
-            }
-        }
+        // Iterate through each feature
+        features.stream()
+                .filter(featureFilter)
+                .forEach(entry -> {
+                    Map<String, List<Double>> varietyValues = this.dataSet.stream()
+                    .filter(dataFilter)
+                    .collect(Collectors.groupingBy(
+                            IrisData::variety, // Group by variety
+                            Collectors.mapping(irisData -> entry.getValue().applyAsDouble(irisData), // Apply the ToDoubleFunction
+                                    Collectors.toList()) // Collect to a List<Double>
+                    ));
+
+                // Add the values to the dataset
+                varietyValues.forEach((variety, values) -> {
+                    dataset.add(values, variety, entry.getKey());
+                });
+            });
+
+
 
         return dataset;
+    }
+
+    public void filterChart(Predicate<? super Map.Entry> featureFilter, Predicate<? super IrisData> dataFilter) {
+        this.chart.getCategoryPlot().setDataset(createDataSet(featureFilter, dataFilter));
     }
 
     public void addActionListener(ActionListener l) {

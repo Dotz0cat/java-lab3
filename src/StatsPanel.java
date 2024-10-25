@@ -185,17 +185,17 @@ public class StatsPanel extends JPanel {
 
         FeatureLabels(String feature, ToDoubleFunction<IrisData> selector) {
             super();
-            this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            this.setLayout(new GridLayout(0, 1));
 
-            this.feature = new JLabel(feature);
+            this.feature = new JLabel(feature, JLabel.CENTER);
             this.add(this.feature);
 
             this.selector = selector;
 
-            this.meanLabel = new JLabel("Mean: 0.0");
-            this.stdevLabel = new JLabel("Standard Deviation: 0.0");
-            this.countLabel = new JLabel("Count: 0");
-            this.zScoreLabel = new JLabel("Z Score: 0.0");
+            this.meanLabel = new JLabel("Mean: 0.0", JLabel.CENTER);
+            this.stdevLabel = new JLabel("Standard Deviation: 0.0", JLabel.CENTER);
+            this.countLabel = new JLabel("Count: 0", JLabel.CENTER);
+            this.zScoreLabel = new JLabel("Z Score: 0.0", JLabel.CENTER);
 
             this.add(meanLabel);
             this.add(stdevLabel);
