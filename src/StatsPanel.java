@@ -6,11 +6,11 @@ import java.util.*;
 import java.util.function.ToDoubleFunction;
 
 public class StatsPanel extends JPanel {
-    private Set<IrisData> dataSet;
-    private JComboBox<String> varities;
+    private final Set<IrisData> dataSet;
+    private final JComboBox<String> varities;
 
-    private JPanel featuresPanel;
-    private Map<String, FeatureLabels> featureLabelsMap;
+    private final JPanel featuresPanel;
+    private final Map<String, FeatureLabels> featureLabelsMap;
 
     private ActionListener actionListener;
 
@@ -20,6 +20,7 @@ public class StatsPanel extends JPanel {
         this.dataSet = dataSet;
 
         this.featuresPanel = new JPanel();
+        this.featuresPanel.setMinimumSize(new Dimension(150, 200));
 
         this.featureLabelsMap = new WeakHashMap<String, FeatureLabels>();
 
@@ -175,13 +176,13 @@ public class StatsPanel extends JPanel {
     }
 
     private class FeatureLabels extends JPanel {
-        private JLabel feature;
-        private ToDoubleFunction<IrisData> selector;
+        private final JLabel feature;
+        private final ToDoubleFunction<IrisData> selector;
 
-        private JLabel meanLabel;
-        private JLabel stdevLabel;
-        private JLabel countLabel;
-        private JLabel zScoreLabel;
+        private final JLabel meanLabel;
+        private final JLabel stdevLabel;
+        private final JLabel countLabel;
+        private final JLabel zScoreLabel;
 
         FeatureLabels(String feature, ToDoubleFunction<IrisData> selector) {
             super();

@@ -8,12 +8,12 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class DataPanel extends JPanel {
-    private TablePanel table;
-    private StatsPanel stats;
-    private ChartPanel chart;
-    private DetailsPanel details;
-    private FileHandler fileHandler;
-    private Set<IrisData> dataSet;
+    private final TablePanel table;
+    private final StatsPanel stats;
+    private final ChartPanel chart;
+    private final DetailsPanel details;
+    private final FileHandler fileHandler;
+    private final Set<IrisData> dataSet;
 
     DataPanel(String file) {
         super();
@@ -35,33 +35,36 @@ public class DataPanel extends JPanel {
         GridBagConstraints chartConstraints = new GridBagConstraints();
         GridBagConstraints detailsConstraints = new GridBagConstraints();
 
-        tableConstraints.anchor = GridBagConstraints.PAGE_START;
+        tableConstraints.anchor = GridBagConstraints.CENTER;
         tableConstraints.fill = GridBagConstraints.BOTH;
         tableConstraints.weightx = 1.0;
         tableConstraints.weighty = 1.0;
         tableConstraints.gridy = 0;
         tableConstraints.gridx = 0;
+        tableConstraints.gridwidth = 2;
+        tableConstraints.ipadx = 200;
 
-        chartConstraints.anchor = GridBagConstraints.PAGE_START;
+        chartConstraints.anchor = GridBagConstraints.LAST_LINE_START;
         chartConstraints.fill = GridBagConstraints.BOTH;
         chartConstraints.weightx = 1.0;
         chartConstraints.weighty = 1.0;
         chartConstraints.gridy = 1;
         chartConstraints.gridx = 0;
+        chartConstraints.ipadx = 200;
 
-        detailsConstraints.anchor = GridBagConstraints.PAGE_START;
+        detailsConstraints.anchor = GridBagConstraints.CENTER;
         detailsConstraints.fill = GridBagConstraints.NONE;
         detailsConstraints.weightx = 0.3;
         detailsConstraints.weighty = 0.0;
         detailsConstraints.gridy = 0;
-        detailsConstraints.gridx = 2;
+        detailsConstraints.gridx = 3;
 
-        statsConstraints.anchor = GridBagConstraints.PAGE_START;
+        statsConstraints.anchor = GridBagConstraints.LAST_LINE_END;
         statsConstraints.fill = GridBagConstraints.VERTICAL;
         statsConstraints.weightx = 0.3;
         statsConstraints.weighty = 1.0;
         statsConstraints.gridy = 1;
-        statsConstraints.gridx = 2;
+        statsConstraints.gridx = 3;
 
         this.add(this.table, tableConstraints);
 
@@ -106,22 +109,18 @@ public class DataPanel extends JPanel {
 
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                return;
             }
 
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
-                return;
             }
 
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
-                return;
             }
 
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
-                return;
             }
         });
 

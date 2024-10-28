@@ -3,10 +3,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.DefaultMultiValueCategoryDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,14 +16,13 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ChartPanel extends JPanel {
     private static final String CHART_TITLE = "Iris chart";
 
     private final Set<IrisData> dataSet;
 
-    private JFreeChart chart;
+    private final JFreeChart chart;
 
     private ActionListener actionListener;
 
@@ -36,8 +32,8 @@ public class ChartPanel extends JPanel {
 
         this.chart = ChartFactory.createBarChart(
             CHART_TITLE,
-            "Something1",
-            "Something2",
+            "Variety",
+            "Feature Measurement",
             createDataSet(_ -> true, _ -> true),
                 PlotOrientation.HORIZONTAL,
                 true,

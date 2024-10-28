@@ -12,14 +12,13 @@ import java.util.function.Predicate;
 public class TablePanel extends JPanel {
     private final Set<IrisData> dataSet;
     private final TableModel modelTable;
-    private JScrollPane pane;
+    private final JScrollPane pane;
     private JTable table;
-    private JPanel checkboxPanel;
-    private ArrayList<JCheckBox> checkBoxes;
+    private final JPanel checkboxPanel;
+    private final ArrayList<JCheckBox> checkBoxes;
 
     //action listener
     private ActionListener actionListener;
-    //private MouseListener mouseListener;
 
     TablePanel(Set<IrisData> dataSet) {
         super(new BorderLayout());
@@ -83,7 +82,7 @@ public class TablePanel extends JPanel {
     }
 
     private class ModelTable extends AbstractTableModel {
-        private BitSet columnsShown;
+        private final BitSet columnsShown;
         private final IrisData[] dataArray;
         private List<IrisData> displayData;
 
