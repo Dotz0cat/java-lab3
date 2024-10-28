@@ -7,8 +7,6 @@ import org.jfree.data.statistics.DefaultMultiValueCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +21,6 @@ public class ChartPanel extends JPanel {
     private final Set<IrisData> dataSet;
 
     private final JFreeChart chart;
-
-    private ActionListener actionListener;
 
     ChartPanel(Set<IrisData> dataSet) {
         super(new BorderLayout());
@@ -77,15 +73,5 @@ public class ChartPanel extends JPanel {
 
     public void filterChart(Predicate<? super Map.Entry> featureFilter, Predicate<? super IrisData> dataFilter) {
         this.chart.getCategoryPlot().setDataset(createDataSet(featureFilter, dataFilter));
-    }
-
-    public void addActionListener(ActionListener l) {
-        this.actionListener = l;
-    }
-
-    private void dispatchAction() {
-        if (this.actionListener == null) return;
-        ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Something");
-        this.actionListener.actionPerformed(event);
     }
 }

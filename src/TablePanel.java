@@ -46,6 +46,7 @@ public class TablePanel extends JPanel {
 
         this.modelTable = new ModelTable();
         this.table = new JTable(this.modelTable);
+        this.table.setAutoCreateRowSorter(true);
 
         this.pane = new JScrollPane(table);
 
@@ -158,7 +159,7 @@ public class TablePanel extends JPanel {
         }
 
         public IrisData getSelectedItem(int row) {
-            return displayData.get(row);
+            return displayData.get(table.convertRowIndexToModel(row));
         }
 
         public void filterData(Predicate<? super IrisData> filter) {
